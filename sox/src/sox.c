@@ -3058,7 +3058,7 @@ int main(int argc, char **argv)
 
   /* begin Alisher's mod */
   if(zap_original) {
-	  printf("Zap original input file (-v) flag is set.\n");
+	  printf("Zap original input file (-z) flag is set.\n");
 	  for (i = 0; i < input_count; ++i) {
 	  		unlink(files[i]->filename);
 	  		printf("Removing input file: %s\n", files[i]->filename);
