@@ -2161,7 +2161,7 @@ static void read_comment_file(sox_comments_t * comments, char const * const file
 }
 
 static char const * const getoptstr =
-  "+ab:c:de:fghimnopqr:st:uv:xABC:DGLMNRSTUV::X12348";
+  "+ab:c:de:fghimnopqr:st:uv:zxABC:DGLMNRSTUV::X12348";
 
 static struct lsx_option_t const long_options[] = {
   {"add-comment"     , lsx_option_arg_required, NULL, 0},
