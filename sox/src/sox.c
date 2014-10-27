@@ -36,9 +36,7 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <time.h>
-#ifdef HAVE_UNISTD_H			//added for Alisher's mod
-#include <unistd.h>             //required for unlink()
-#endif
+
 
 #if defined(HAVE_WIN32_GLOB_H)
   #include "win32-glob.h"
@@ -53,7 +51,7 @@
 
 #ifdef HAVE_SUN_AUDIOIO_H
   #include <sun/audioio.h>
-  #define HAVE_AUDIOIO_H 1
+  #define HAVE_AUDIOIO_H f
 #else
 #ifdef HAVE_SYS_AUDIOIO_H
   #include <sys/audioio.h>
@@ -230,6 +228,18 @@ static void cleanup(void)
   }
   /* Close the input and output files before exiting. */
   for (i = 0; i < input_count; i++) {
+
+	/* begin Alisher's mod */
+	if(zap_original) {
+		if(success) {
+		  unlink(files[i]->filename); /* Assume we can unlink a file before closing it. */
+	      printf("Removing input file: %s\n", files[i]->filename);
+		} else {
+	      printf("Ignored --zap-original flag because encoding did not succeed.\n");
+		}
+	}
+	/* end Alisher's mod */
+
     if (files[i]->ft) {
       sox_close(files[i]->ft);
     }
@@ -3055,16 +3065,6 @@ int main(int argc, char **argv)
     else
       fprintf(stderr, "Done.\n");
   }
-
-  /* begin Alisher's mod */
-  if(zap_original) {
-	  printf("Zap original input file (-z) flag is set.\n");
-	  for (i = 0; i < input_count; ++i) {
-	  		unlink(files[i]->filename);
-	  		printf("Removing input file: %s\n", files[i]->filename);
-	  }
-  }
-  /* end Alisher's mod */
 
   success = 1; /* Signal success to cleanup so the output file isn't removed. */
 
