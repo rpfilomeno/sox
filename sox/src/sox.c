@@ -36,6 +36,9 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <time.h>
+#ifdef HAVE_UNISTD_H			//added for Alisher's mod
+#include <unistd.h>             //required for unlink()
+#endif
 
 #if defined(HAVE_WIN32_GLOB_H)
   #include "win32-glob.h"
@@ -134,6 +137,7 @@ static lsx_enum_item const rg_modes[] = {
   {0, 0}};
 static rg_mode replay_gain_mode = RG_default;
 static sox_option_t show_progress = sox_option_default;
+static sox_option_t zap_original = sox_option_no; //Added for Alisher's mod
 
 
 /* Input & output files */
@@ -1931,7 +1935,8 @@ static void usage(char const * message)
 "--no-clobber             Prompt to overwrite output file",
 "-m, --combine mix        Mix multiple input files (instead of concatenating)",
 "--combine mix-power      Mix to equal power (instead of concatenating)",
-"-M, --combine merge      Merge multiple input files (instead of concatenating)"
+"-M, --combine merge      Merge multiple input files (instead of concatenating)",
+"-z, --zap-original       Delete the original file" //Added for Alisher's mod
   };
   static char const * const linesMagic[] = {
 "--magic                  Use `magic' file-type detection"
@@ -2202,6 +2207,7 @@ static struct lsx_option_t const long_options[] = {
   {"type"            , lsx_option_arg_required, NULL, 't'},
   {"volume"          , lsx_option_arg_required, NULL, 'v'},
   {"guard"           , lsx_option_arg_none    , NULL, 'G'},
+  {"zap-original"    , lsx_option_arg_optional, NULL, 'z'}, //Added for Alisher's mod
 
   {NULL, 0, NULL, 0}
 };
@@ -2519,6 +2525,7 @@ static char parse_gopts_and_fopts(file_t * f)
         sox_globals.verbosity = (unsigned)i;
       }
       break;
+    case 'z': zap_original = sox_option_yes; break; //added for Alisher's mod
     }
   }
 }
@@ -3048,6 +3055,13 @@ int main(int argc, char **argv)
     else
       fprintf(stderr, "Done.\n");
   }
+
+  /* begin Alisher's mod */
+  if(zap_original) {
+	  for (i = 0; i < input_count; ++i)
+	  		unlink(files[i]->filename);
+  }
+  /* end Alisher's mod */
 
   success = 1; /* Signal success to cleanup so the output file isn't removed. */
 
